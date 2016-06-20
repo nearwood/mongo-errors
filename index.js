@@ -1,5 +1,5 @@
-
 exports.class = {};
+
 exports.OK = 0;
 exports.InternalError = 1;
 exports.BadValue = 2;
