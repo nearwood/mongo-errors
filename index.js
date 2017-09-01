@@ -130,7 +130,7 @@ exports.LockNotFound = 128;
 exports.LockStateChangeFailed = 129;
 exports.SymbolNotFound = 130;
 exports.RLPInitializationFailed = 131;
-exports.ConfigServersInconsistent = 132;
+exports.OBSOLETE_ConfigServersInconsistent = 132;
 exports.FailedToSatisfyReadPreference = 133;
 exports.ReadConcernMajorityNotAvailableYet = 134;
 exports.StaleTerm = 135;
@@ -160,6 +160,69 @@ exports.MustUpgrade = 158;
 exports.DurationOverflow = 159;
 exports.MaxStalenessOutOfRange = 160;
 exports.IncompatibleCollationVersion = 161;
+exports.CollectionIsEmpty = 162;
+exports.ZoneStillInUse = 163;
+exports.InitialSyncActive = 164;
+exports.ViewDepthLimitExceeded = 165;
+exports.CommandNotSupportedOnView = 166;
+exports.OptionNotSupportedOnView = 167;
+exports.InvalidPipelineOperator = 168;
+exports.CommandOnShardedViewNotSupportedOnMongod = 169;
+exports.TooManyMatchingDocuments = 170;
+exports.CannotIndexParallelArrays = 171;
+exports.TransportSessionClosed = 172;
+exports.TransportSessionNotFound = 173;
+exports.TransportSessionUnknown = 174;
+exports.QueryPlanKilled = 175;
+exports.FileOpenFailed = 176;
+exports.ZoneNotFound = 177;
+exports.RangeOverlapConflict = 178;
+exports.WindowsPdhError = 179;
+exports.BadPerfCounterPath = 180;
+exports.AmbiguousIndexKeyPattern = 181;
+exports.InvalidViewDefinition = 182;
+exports.ClientMetadataMissingField = 183;
+exports.ClientMetadataAppNameTooLarge = 184;
+exports.ClientMetadataDocumentTooLarge = 185;
+exports.ClientMetadataCannotBeMutated = 186;
+exports.LinearizableReadConcernError = 187;
+exports.IncompatibleServerVersion = 188;
+exports.PrimarySteppedDown = 189;
+exports.MasterSlaveConnectionFailure = 190;
+exports.OBSOLETE_BalancerLostDistributedLock = 191;
+exports.FailPointEnabled = 192;
+exports.NoShardingEnabled = 193;
+exports.BalancerInterrupted = 194;
+exports.ViewPipelineMaxSizeExceeded = 195;
+exports.InvalidIndexSpecificationOption = 197;
+exports.OBSOLETE_ReceivedOpReplyMessage = 198;
+exports.ReplicaSetMonitorRemoved = 199;
+exports.ChunkRangeCleanupPending = 200;
+exports.CannotBuildIndexKeys = 201;
+exports.NetworkInterfaceExceededTimeLimit = 202;
+exports.ShardingStateNotInitialized = 203;
+exports.TimeProofMismatch = 204;
+exports.ClusterTimeFailsRateLimiter = 205;
+exports.NoSuchSession = 206;
+exports.InvalidUUID = 207;
+exports.TooManyLocks = 208;
+exports.StaleClusterTime = 209;
+exports.CannotVerifyAndSignLogicalTime = 210;
+exports.KeyNotFound = 211;
+exports.IncompatibleRollbackAlgorithm = 212;
+exports.DuplicateSession = 213;
+exports.AuthenticationRestrictionUnmet = 214;
+exports.DatabaseDropPending = 215;
+exports.ElectionInProgress = 216;
+exports.IncompleteTransactionHistory = 217;
+exports.UpdateOperationFailed = 218;
+exports.FTDCPathNotSet = 219;
+exports.FTDCPathAlreadySet = 220;
+exports.IndexModified = 221;
+exports.CloseChangeStream = 222;
+exports.IllegalOpMsgFlag = 223;
+
+// Error codes 4000-8999 are reserved.
 
 // Non-sequential error codes (for compatibility only)
 exports.SocketException = 9001;
@@ -181,16 +244,30 @@ exports.SendStaleConfig = 13388;
 exports.DatabaseDifferCase = 13297;
 exports.OBSOLETE_PrepareConfigsFailed = 13104;
 
-// SERVER-21428 explains the extra changes needed if error_class components change.
-exports.class.NetworkError = [exports.HostUnreachable, exports.HostNotFound, exports.NetworkTimeout];
+// Group related errors into classes, can be checked against ErrorCodes::isXXXClassName methods.
+exports.class.NetworkError = [exports.HostUnreachable, exports.HostNotFound, exports.NetworkTimeout, exports.SocketException];
 exports.class.Interruption = [exports.Interrupted,
                              exports.InterruptedAtShutdown,
                              exports.InterruptedDueToReplStateChange,
                              exports.ExceededTimeLimit];
-exports.class.NotMasterError = [exports.NotMaster, exports.NotMasterNoSlaveOk];
+
+// isNotMasterError() includes all codes that indicate that the node that received the request was
+// not master at some point during command processing, regardless of whether some write may have
+// happened. If you care about whether a write could have happened, check for individual codes.
+exports.class.NotMasterError = [
+    exports.NotMaster,
+    exports.NotMasterNoSlaveOk,
+    exports.NotMasterOrSecondary,
+    exports.InterruptedDueToReplStateChange,
+    exports.PrimarySteppedDown,
+    ];
 exports.class.StaleShardingError =
             [exports.RecvStaleConfig, exports.SendStaleConfig, exports.StaleShardVersion, exports.StaleEpoch];
 exports.class.WriteConcernError = [exports.WriteConcernFailed,
                                   exports.WriteConcernLegacyOK,
                                   exports.UnknownReplWriteConcern,
                                   exports.CannotSatisfyWriteConcern];
+exports.class.ShutdownError = [exports.ShutdownInProgress, exports.InterruptedAtShutdown];
+
+//TODO SERVER-28679 add checksum failure.
+exports.class.ConnectionFatalMessageParseError = [exports.IllegalOpMsgFlag];
